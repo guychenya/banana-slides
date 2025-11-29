@@ -1,6 +1,7 @@
 # 🍌 蕉幻 (Banana Slides)
 
 一个基于AI的智能PPT生成工具，支持一句话生成完整PPT演示文稿。
+<img width="2086" height="1866" alt="image" src="https://github.com/user-attachments/assets/45283476-afb7-4aff-8154-15a0c0bc9174" />
 
 ## ✨ 项目简介
 
