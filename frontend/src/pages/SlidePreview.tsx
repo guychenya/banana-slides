@@ -76,7 +76,16 @@ export const SlidePreview: React.FC = () => {
     if (!currentProject) return;
     const page = currentProject.pages[selectedIndex];
     if (!page.id) return;
-    await generatePageImage(page.id);
+    
+    try {
+      await generatePageImage(page.id);
+      show({ message: '图片生成成功', type: 'success' });
+    } catch (error: any) {
+      show({ 
+        message: `生成失败: ${error.message || '未知错误'}`, 
+        type: 'error' 
+      });
+    }
   };
 
   const handleEditPage = () => {

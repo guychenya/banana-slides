@@ -411,10 +411,20 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
 
   // 生成单页图片
   generatePageImage: async (pageId) => {
-    const { currentProject, startAsyncTask } = get();
+    const { currentProject } = get();
     if (!currentProject) return;
 
-    await startAsyncTask(() => api.generatePageImage(currentProject.id, pageId));
+    set({ isGlobalLoading: true, error: null });
+    try {
+      await api.generatePageImage(currentProject.id, pageId);
+      // 刷新项目数据
+      await get().syncProject();
+    } catch (error: any) {
+      set({ error: error.message || '生成图片失败' });
+      throw error;
+    } finally {
+      set({ isGlobalLoading: false });
+    }
   },
 
   // 编辑页面图片
