@@ -11,7 +11,7 @@ import {
   ChevronDown,
   ChevronUp,
 } from 'lucide-react';
-import { Button, Loading, Modal, Textarea } from '@/components/shared';
+import { Button, Loading, Modal, Textarea, useToast } from '@/components/shared';
 import { SlideCard } from '@/components/preview/SlideCard';
 import { useProjectStore } from '@/store/useProjectStore';
 import { getImageUrl } from '@/api/client';
@@ -40,6 +40,8 @@ export const SlidePreview: React.FC = () => {
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [isOutlineExpanded, setIsOutlineExpanded] = useState(false);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const { show, ToastContainer } = useToast();
 
   // 加载项目数据
   useEffect(() => {
@@ -92,6 +94,27 @@ export const SlidePreview: React.FC = () => {
       await exportPPTX();
     } else {
       await exportPDF();
+    }
+  };
+
+  const handleRefresh = async () => {
+    const targetProjectId = projectId || currentProject?.id;
+    if (!targetProjectId) {
+      show({ message: '无法刷新：缺少项目ID', type: 'error' });
+      return;
+    }
+
+    setIsRefreshing(true);
+    try {
+      await syncProject(targetProjectId);
+      show({ message: '刷新成功', type: 'success' });
+    } catch (error: any) {
+      show({ 
+        message: error.message || '刷新失败，请稍后重试', 
+        type: 'error' 
+      });
+    } finally {
+      setIsRefreshing(false);
     }
   };
 
@@ -164,8 +187,9 @@ export const SlidePreview: React.FC = () => {
           <Button
             variant="ghost"
             size="sm"
-            icon={<RefreshCw size={18} />}
-            onClick={() => projectId && syncProject(projectId)}
+            icon={<RefreshCw size={18} className={isRefreshing ? 'animate-spin' : ''} />}
+            onClick={handleRefresh}
+            disabled={isRefreshing}
           >
             刷新
           </Button>
@@ -443,6 +467,7 @@ export const SlidePreview: React.FC = () => {
           </div>
         </div>
       </Modal>
+      <ToastContainer />
     </div>
   );
 };

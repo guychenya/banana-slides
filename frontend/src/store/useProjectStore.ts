@@ -149,7 +149,34 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
         localStorage.setItem('currentProjectId', project.id!);
       }
     } catch (error: any) {
-      set({ error: error.message || '同步项目失败' });
+      // 提取更详细的错误信息
+      let errorMessage = '同步项目失败';
+      
+      if (error.response) {
+        // 服务器返回了错误响应
+        const errorData = error.response.data;
+        if (error.response.status === 404) {
+          // 404错误：项目不存在
+          errorMessage = errorData?.error?.message || '项目不存在，可能已被删除';
+        } else if (errorData?.error?.message) {
+          // 从后端错误格式中提取消息
+          errorMessage = errorData.error.message;
+        } else if (errorData?.message) {
+          errorMessage = errorData.message;
+        } else if (errorData?.error) {
+          errorMessage = typeof errorData.error === 'string' ? errorData.error : errorData.error.message || '请求失败';
+        } else {
+          errorMessage = `请求失败: ${error.response.status}`;
+        }
+      } else if (error.request) {
+        // 请求已发送但没有收到响应
+        errorMessage = '网络错误，请检查连接';
+      } else if (error.message) {
+        // 其他错误
+        errorMessage = error.message;
+      }
+      
+      set({ error: errorMessage });
     }
   },
 
