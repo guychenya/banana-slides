@@ -1,17 +1,42 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import LocaleToggle from '../components/shared/LocaleToggle';
 import { t } from '../i18n';
+import { useProjectStore } from '../store/useProjectStore';
+import { useToast } from '../components/shared';
 
 export function Home() {
   const [theme, setTheme] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+  const { initializeProject } = useProjectStore();
+  const { show } = useToast();
 
-  const onGenerate = () => {
+  const onGenerate = async () => {
     if (!theme.trim()) {
-      alert(t('errors.required'));
+      show({ message: t('errors.required'), type: 'error' });
       return;
     }
-    // Trigger generate flow (existing logic)
-    // ...
+
+    setIsLoading(true);
+    try {
+      // Initialize project with the idea
+      await initializeProject('idea', theme);
+      
+      // Navigate to outline editor
+      const projectId = useProjectStore.getState().currentProject?.id;
+      if (projectId) {
+        navigate(`/project/${projectId}/outline`);
+      }
+    } catch (error: any) {
+      console.error('Failed to create project:', error);
+      show({ 
+        message: error?.message || t('errors.network'), 
+        type: 'error' 
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -33,9 +58,10 @@ export function Home() {
       <div className="flex gap-2">
         <button
           onClick={onGenerate}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+          disabled={isLoading}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {t('actions.generate')}
+          {isLoading ? 'Generating...' : t('actions.generate')}
         </button>
       </div>
     </div>
