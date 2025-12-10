@@ -1,81 +1,68 @@
 #!/bin/bash
-# Quick setup script for Banana Slides on VPS
-# Run this on your VPS at 157.173.126.133
 
-set -e
+# Banana Slides VPS Quick Setup Script
 
-echo "=== Banana Slides VPS Setup ==="
-echo ""
+# ---
+# Note: This script is for Ubuntu/Debian based systems.
+# ---
 
 # 1. Update system
-echo "Step 1: Updating system..."
 apt update && apt upgrade -y
 
 # 2. Install dependencies
-echo "Step 2: Installing dependencies..."
 apt install -y python3 python3-pip git
 
 # 3. Clone repository
-echo "Step 3: Cloning repository..."
-mkdir -p /var/www
-cd /var/www
-if [ -d "banana-slides" ]; then
-    echo "Repository already exists, pulling latest..."
-    cd banana-slides
-    git pull origin main
+if [ -d "/var/www/banana-slides" ]; then
+    echo "Repository already exists, pulling latest changes..."
+    cd /var/www/banana-slides
+    git pull
 else
-    git clone https://github.com/guychenya/banana-slides.git
-    cd banana-slides
+    echo "Cloning repository..."
+    git clone https://github.com/guychenya/banana-slides.git /var/www/banana-slides
 fi
 
 # 4. Install Python packages
-echo "Step 4: Installing Python packages..."
-cd backend
-pip3 install -r requirements.txt
+pip3 install -r /var/www/banana-slides/backend/requirements.txt
 
-# 5. Create directories
-echo "Step 5: Creating directories..."
-mkdir -p instance uploads
+# 5. Make instance and uploads directory
+mkdir -p /var/www/banana-slides/backend/instance
+mkdir -p /var/www/banana-slides/backend/uploads
 
 # 6. Configure environment
-echo "Step 6: Setting up environment..."
-if [ ! -f .env ]; then
-    cat > .env << 'EOF'
-FLASK_ENV=production
-SECRET_KEY=change-this-to-a-random-secret-key
-CORS_ORIGINS=https://memonana.netlify.app,http://localhost:3000
-EOF
-    echo "Created .env file. IMPORTANT: You need to add your GOOGLE_API_KEY!"
+if [ ! -f "/var/www/banana-slides/backend/.env" ]; then
+    echo "Creating .env file..."
+    touch /var/www/banana-slides/backend/.env
+    echo "FLASK_ENV=production" >> /var/www/banana-slides/backend/.env
+    echo "SECRET_KEY='a-very-secret-key'" >> /var/www/banana-slides/backend/.env
+    echo "CORS_ORIGINS='http://localhost:5173,http://localhost:3000,http://your_domain.com'" >> /var/www/banana-slides/backend/.env
+    echo "# Add your Google API key here" >> /var/www/banana-slides/backend/.env
+    echo "GOOGLE_API_KEY=''" >> /var/www/banana-slides/backend/.env
+else
+    echo ".env file already exists."
 fi
 
-# 7. Initialize database
-echo "Step 7: Initializing database..."
-python3 -c "from app import app, db; app.app_context().push(); db.create_all(); print('Database initialized')"
+# 7. Init database
+python3 -c "from app import create_app; from models.database import db; app = create_app(); db.create_all(app=app)"
 
 # 8. Setup systemd service
-echo "Step 8: Setting up systemd service..."
-cp banana-slides.service /etc/systemd/system/
+cp /var/www/banana-slides/backend/banana-slides.service /etc/systemd/system/
 systemctl daemon-reload
-systemctl enable banana-slides
+systemctl enable banana-slides.service
 
 # 9. Configure firewall
-echo "Step 9: Configuring firewall..."
-if command -v ufw &> /dev/null; then
+if [ -x "$(command -v ufw)" ]; then
     ufw allow 5000/tcp
-    ufw --force enable
-else
-    echo "UFW not installed, skipping firewall setup"
 fi
 
-echo ""
-echo "=== Setup Complete! ==="
-echo ""
-echo "⚠️  IMPORTANT: Before starting the service, you MUST:"
-echo "1. Edit /var/www/banana-slides/backend/.env"
-echo "2. Add your GOOGLE_API_KEY"
-echo ""
-echo "Then run:"
-echo "  systemctl start banana-slides"
-echo "  systemctl status banana-slides"
-echo ""
-echo "Test with: curl http://157.173.126.133:5000/health"
+echo "---"
+echo "Setup complete!"
+echo "Please edit the .env file and add your GOOGLE_API_KEY."
+echo "Then, run the following commands to start the service:"
+echo "---"
+echo "sudo systemctl start banana-slides.service"
+echo "sudo systemctl status banana-slides.service"
+echo "---"
+echo "You can test the service by running:"
+echo "curl http://localhost:5000/api/health"
+echo "---"
