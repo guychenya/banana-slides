@@ -29,7 +29,7 @@ source venv/bin/activate
 
 # Install dependencies
 echo "📥 Installing dependencies..."
-pip install -r requirements.txt
+pip install -r ../requirements.txt
 
 # Create instance folder if not exists
 mkdir -p instance

@@ -1,3 +1,7 @@
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from flask import Flask
 from flask_cors import CORS
 from config import Config
@@ -11,6 +15,7 @@ app.config.from_object(Config)
 
 # Initialize CORS with allowed origins
 CORS(app, resources={r"/*": {"origins": app.config['CORS_ORIGINS']}})
+print(f"CORS_ORIGINS: {app.config['CORS_ORIGINS']}")
 
 # Initialize database
 db.init_app(app)

@@ -11,7 +11,8 @@ BASE_URL = "http://localhost:5000"
 def test_health():
     """Test health endpoint"""
     print("Testing health endpoint...")
-    response = requests.get(f"{BASE_URL}/health")
+    headers = {"Origin": "http://localhost:3000"}
+    response = requests.get(f"{BASE_URL}/api/health", headers=headers)
     print(f"Status: {response.status_code}")
     print(f"Response: {response.json()}")
     print()
@@ -20,12 +21,14 @@ def test_health():
 def test_create_project():
     """Test project creation"""
     print("Creating project...")
+    headers = {"Origin": "http://localhost:3000"}
     response = requests.post(
         f"{BASE_URL}/api/projects",
         json={
             "creation_type": "idea",
             "idea_prompt": "生成一份关于人工智能发展的PPT"
-        }
+        },
+        headers=headers
     )
     print(f"Status: {response.status_code}")
     data = response.json()
@@ -42,7 +45,8 @@ def test_create_project():
 def test_get_project(project_id):
     """Test get project"""
     print(f"\nGetting project {project_id}...")
-    response = requests.get(f"{BASE_URL}/api/projects/{project_id}")
+    headers = {"Origin": "http://localhost:3000"}
+    response = requests.get(f"{BASE_URL}/api/projects/{project_id}", headers=headers)
     print(f"Status: {response.status_code}")
     data = response.json()
     print(f"Response: {json.dumps(data, indent=2, ensure_ascii=False)}")
@@ -52,11 +56,13 @@ def test_get_project(project_id):
 def test_generate_outline(project_id):
     """Test outline generation"""
     print(f"\nGenerating outline for project {project_id}...")
+    headers = {"Origin": "http://localhost:3000"}
     response = requests.post(
         f"{BASE_URL}/api/projects/{project_id}/generate/outline",
         json={
             "idea_prompt": "生成一份关于人工智能发展的PPT"
-        }
+        },
+        headers=headers
     )
     print(f"Status: {response.status_code}")
     data = response.json()
