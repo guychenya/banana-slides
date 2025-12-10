@@ -4,7 +4,7 @@ export { Textarea } from './Textarea';
 export { Card } from './Card';
 export { Modal } from './Modal';
 export { Loading, Skeleton } from './Loading';
-export { Toast, useToast } from './Toast';
+export { Toast, useToast, ToastProvider } from './Toast';
 export { StatusBadge } from './StatusBadge';
 export { ContextualStatusBadge } from './ContextualStatusBadge';
 export { ConfirmDialog, useConfirm } from './ConfirmDialog';

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import LocaleToggle from '../components/shared/LocaleToggle';
 import { t } from '../i18n';
 
-export default function Home() {
+export function Home() {
   const [theme, setTheme] = useState('');
 
   const onGenerate = () => {
@@ -41,3 +41,5 @@ export default function Home() {
     </div>
   );
 }
+
+export default Home;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { createContext, useContext, useState, useCallback } from 'react';
 import { t } from '../../i18n';
 
 type Props = {
@@ -64,3 +64,66 @@ export const Toast: React.FC<Props> = ({ messageKey, type = 'info', onClose }) =
 };
 
 export default Toast;
+
+// Toast Context for managing toasts globally
+type ToastConfig = {
+  message: string;
+  type?: 'info' | 'success' | 'warning' | 'error';
+  duration?: number;
+};
+
+type ToastContextType = {
+  show: (config: ToastConfig) => void;
+};
+
+const ToastContext = createContext<ToastContextType | undefined>(undefined);
+
+export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [toasts, setToasts] = useState<Array<ToastConfig & { id: number }>>([]);
+  const [nextId, setNextId] = useState(0);
+
+  const show = useCallback((config: ToastConfig) => {
+    const id = nextId;
+    setNextId(id + 1);
+    setToasts((prev) => [...prev, { ...config, id }]);
+
+    const duration = config.duration || 3000;
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, duration);
+  }, [nextId]);
+
+  return (
+    <ToastContext.Provider value={{ show }}>
+      {children}
+      <div
+        style={{
+          position: 'fixed',
+          top: 16,
+          right: 16,
+          zIndex: 9999,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 8,
+        }}
+      >
+        {toasts.map((toast) => (
+          <Toast
+            key={toast.id}
+            messageKey={toast.message}
+            type={toast.type}
+            onClose={() => setToasts((prev) => prev.filter((t) => t.id !== toast.id))}
+          />
+        ))}
+      </div>
+    </ToastContext.Provider>
+  );
+};
+
+export const useToast = (): ToastContextType => {
+  const context = useContext(ToastContext);
+  if (!context) {
+    throw new Error('useToast must be used within a ToastProvider');
+  }
+  return context;
+};

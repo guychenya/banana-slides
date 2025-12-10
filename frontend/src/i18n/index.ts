@@ -8,11 +8,18 @@ const dictionaries: Record<Locale, Dict> = { en, zh };
 
 const STORAGE_KEY = 'bananaSlides.locale';
 
-let currentLocale: Locale = (localStorage.getItem(STORAGE_KEY) as Locale) || 'en';
+let currentLocale: Locale = (() => {
+  if (typeof window !== 'undefined' && window.localStorage) {
+    return (localStorage.getItem(STORAGE_KEY) as Locale) || 'en';
+  }
+  return 'en';
+})();
 
 export function setLocale(locale: Locale) {
   currentLocale = locale;
-  localStorage.setItem(STORAGE_KEY, locale);
+  if (typeof window !== 'undefined' && window.localStorage) {
+    localStorage.setItem(STORAGE_KEY, locale);
+  }
 }
 
 export function getLocale(): Locale {
