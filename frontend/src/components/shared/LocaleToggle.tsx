@@ -1,7 +1,7 @@
-+import React from 'react';
-+import { getLocale, setLocale, t } from '../../i18n';
+import React from 'react';
+import { getLocale, setLocale, t } from '../../i18n';
 +
-+export default function LocaleToggle() {
+export default function LocaleToggle() {
 +  const [locale, setLoc] = React.useState(getLocale());
 +
 +  const onChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
