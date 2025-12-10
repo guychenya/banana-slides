@@ -1,7 +1,11 @@
 import axios from 'axios';
 
 // Default backend URL points to local dev. Modify if deploying behind a proxy.
-const BASE_URL = (import.meta as any).env?.VITE_BACKEND_URL || 'http://localhost:5000';
+// In production (Netlify), use relative URLs so the proxy works
+const BASE_URL = (import.meta as any).env?.VITE_BACKEND_URL || 
+  (typeof window !== 'undefined' && window.location.hostname !== 'localhost' 
+    ? '' // Use relative URLs in production
+    : 'http://localhost:5000'); // Use localhost in development
 
 const client = axios.create({
   baseURL: BASE_URL,
