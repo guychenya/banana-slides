@@ -1,0 +1,17 @@
+[Unit]
+Description=Banana Slides Backend API
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/var/www/banana-slides/backend
+Environment="PATH=/usr/local/bin:/usr/bin:/bin"
+Environment="FLASK_ENV=production"
+Environment="GOOGLE_API_KEY=your-google-api-key"
+ExecStart=/usr/bin/python3 -m gunicorn -w 4 -b 0.0.0.0:5000 --timeout 120 app:app
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

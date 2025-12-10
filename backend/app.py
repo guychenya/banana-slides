@@ -9,8 +9,8 @@ app = Flask(__name__)
 # Load configuration
 app.config.from_object(Config)
 
-# Initialize CORS
-CORS(app)
+# Initialize CORS with allowed origins
+CORS(app, resources={r"/*": {"origins": app.config['CORS_ORIGINS']}})
 
 # Initialize database
 db.init_app(app)

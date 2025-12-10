@@ -3,22 +3,6 @@
   command = "npm install && npm run build"
   publish = "dist"
 
-[build.environment]
-  PYTHON_VERSION = "3.11"
-
-[functions]
-  directory = "netlify/functions"
-  node_bundler = "esbuild"
-  
-[[functions]]
-  path = "netlify/functions/api.py"
-  included_files = ["backend/**", "requirements.txt"]
-
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/api/:splat"
-  status = 200
-
 [[redirects]]
   from = "/*"
   to = "/index.html"

@@ -64,7 +64,7 @@ class Config:
     LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO').upper()
     
     # CORS配置
-    CORS_ORIGINS = os.getenv('CORS_ORIGINS', 'http://localhost:3000').split(',')
+    CORS_ORIGINS = os.getenv('CORS_ORIGINS', 'http://localhost:3000,https://memonana.netlify.app').split(',')
 
 
 class DevelopmentConfig(Config):
